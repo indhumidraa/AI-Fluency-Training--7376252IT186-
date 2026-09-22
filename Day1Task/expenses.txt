@@ -1,0 +1,6 @@
+Python Programming, 12000
+Machine Learning, 15000
+Web Development, 10000
+Data Science, 18000
+Cloud Computing, 14000
+Cyber Security, 16000
