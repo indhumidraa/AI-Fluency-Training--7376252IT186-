@@ -2,7 +2,7 @@
 import json
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Day_1')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Day1')))
 from config import client, MODEL, banner
 from my_agent import SYSTEM_PROMPT
 from my_tools import TOOLS, TOOL_FUNCTIONS
