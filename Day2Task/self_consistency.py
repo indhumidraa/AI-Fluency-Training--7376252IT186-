@@ -1,54 +1,96 @@
 from collections import Counter
+
 from config import client, MODEL
 
-QUESTION = (
-    "A student has a budget of Rs. 30,000. "
-    "CS101 costs Rs. 12,000, AI202 costs Rs. 18,000, "
-    "and ML303 costs Rs. 15,000. "
-    "Which two courses can the student take together?"
-)
 
-RUNS = 5
-TEMPERATURE = 0.8
+QUESTION = """
+A college is organizing a technical workshop.
 
-answers = []
+The total budget is Rs. 25,000.
+Venue rental costs Rs. 8,000.
+Food costs Rs. 7,500.
+Promotional materials cost Rs. 3,500.
 
-for i in range(RUNS):
+How much money remains after paying all three expenses?
+"""
+
+
+PROMPT = """
+Solve the problem carefully step by step.
+
+At the end, write exactly:
+
+Final Answer: <answer>
+"""
+
+
+def ask(temperature):
+
     response = client.chat.completions.create(
         model=MODEL,
         messages=[
             {
                 "role": "system",
-                "content": (
-                    "Solve the problem step by step and give "
-                    "a clear final answer."
-                )
+                "content": PROMPT,
             },
             {
                 "role": "user",
-                "content": QUESTION
-            }
+                "content": QUESTION,
+            },
         ],
-        temperature=TEMPERATURE
+        temperature=temperature,
     )
 
-    answer = response.choices[0].message.content.strip()
+    return response.choices[0].message.content.strip()
 
-    print(f"\n--- RUN {i + 1} ---")
-    print(answer)
 
-    answers.append(answer)
+def extract_answer(text):
 
-counts = Counter(answers)
+    for line in reversed(text.splitlines()):
 
-print("\n--- SELF-CONSISTENCY RESULT ---")
+        if "Final Answer:" in line:
+            return line.split(
+                "Final Answer:", 1
+            )[1].strip()
 
-for answer, count in counts.most_common():
-    print(f"{count} occurrence(s): {answer}")
+    return text.splitlines()[-1].strip()
 
-winner, count = counts.most_common(1)[0]
 
-print("\nMAJORITY ANSWER:")
-print(winner)
+if __name__ == "__main__":
 
-print(f"\nMajority count: {count}/{RUNS}")
+    print("=" * 70)
+    print("SELF-CONSISTENCY")
+    print("=" * 70)
+
+    runs = 5
+
+    print("\nQUESTION:")
+    print(QUESTION)
+
+    print("\nTemperature = 0.8")
+
+    answers = []
+
+    for i in range(runs):
+
+        output = ask(0.8)
+        answer = extract_answer(output)
+
+        answers.append(answer)
+
+        print(f"Run {i + 1}: {answer}")
+
+    counts = Counter(answers)
+
+    majority_answer, count = counts.most_common(1)[0]
+
+    print("\nMajority Answer:")
+    print(majority_answer)
+
+    print(f"Count: {count}/{runs}")
+
+    print("\nTemperature = 0")
+
+    output = ask(0)
+
+    print(output)

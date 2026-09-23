@@ -1,62 +1,96 @@
 from config import client, MODEL
-from tool import course_info
+from tool import get_current_weather
 
-QUESTION = (
-    "I want to know the duration of AI202. "
-    "Then tell me whether CS101 and AI202 together "
-    "would cost less than Rs. 30,000."
-)
 
-print("QUESTION:", QUESTION)
-print("\n--- ReAct Trace ---")
+def react(question, needs_weather=False, city="Chennai"):
 
-# Thought
-print("\nThought: I need the course information before answering.")
+    print("\n--- STEP 1 ---")
+    print("Thought: I will determine whether external information is required.")
 
-# Action
-print("Action: course_info('AI202')")
+    if needs_weather:
+        print("Action: get_current_weather")
+        print(f"Action Input: {city}")
 
-# Observation
-ai_info = course_info("AI202")
-print("Observation:", ai_info)
+        try:
+            observation = get_current_weather(city)
+        except Exception as error:
+            observation = f"Tool error: {error}"
 
-# Action
-print("\nAction: course_info('CS101')")
+        print(f"Observation: {observation}")
 
-# Observation
-cs_info = course_info("CS101")
-print("Observation:", cs_info)
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a helpful assistant. "
+                    "Use the provided tool observation to answer the question. "
+                    "Do not call any tools. "
+                    "Give only the final answer."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Question: {question}\n\n"
+                    f"Tool Observation: {observation}"
+                ),
+            },
+        ]
 
-# Now ask the LLM to interpret the tool results
-prompt = f"""
-Answer the user's question using the tool results below.
+    else:
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a helpful assistant. "
+                    "Solve the problem and give the final answer. "
+                    "Do not call any tools."
+                ),
+            },
+            {
+                "role": "user",
+                "content": question,
+            },
+        ]
 
-User question:
-{QUESTION}
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=messages,
+        temperature=0,
+    )
 
-Tool result for AI202:
-{ai_info}
+    answer = response.choices[0].message.content.strip()
 
-Tool result for CS101:
-{cs_info}
+    print("\n--- FINAL ANSWER ---")
+    print(answer)
 
-Explain the result briefly and give the final answer.
-"""
+    return answer
 
-response = client.chat.completions.create(
-    model=MODEL,
-    messages=[
-        {
-            "role": "system",
-            "content": "You are a ReAct-style assistant."
-        },
-        {
-            "role": "user",
-            "content": prompt
-        }
-    ],
-    temperature=0
-)
 
-print("\nFinal Answer:")
-print(response.choices[0].message.content)
+if __name__ == "__main__":
+
+    print("=" * 70)
+    print("REACT AGENT")
+    print("=" * 70)
+
+    question1 = (
+        "A college is organizing a technical workshop. "
+        "The budget is Rs. 25,000. Venue rental costs Rs. 8,000, "
+        "food costs Rs. 7,500, and promotional materials cost "
+        "Rs. 3,500. How much money remains after these expenses?"
+    )
+
+    print("\nQUESTION 1:")
+    print(question1)
+
+    react(question1)
+
+    question2 = (
+        "The technical workshop is being held in Chennai. "
+        "What is the current weather in Chennai?"
+    )
+
+    print("\nQUESTION 2:")
+    print(question2)
+
+    react(question2, needs_weather=True, city="Chennai")

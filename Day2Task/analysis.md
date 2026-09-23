@@ -1,274 +1,171 @@
-\# Day 2 Task – Reasoning and Acting
+# Individual Conceptual Analysis – Reasoning and Acting
 
+## 1. Scenario
 
+A college is organizing a technical workshop with a budget of Rs. 25,000.
 
-\## 1. Scenario
+The expenses are:
 
+- Venue rental: Rs. 8,000
+- Food: Rs. 7,500
+- Promotional materials: Rs. 3,500
 
+The scenario is used to compare Direct Prompting, Chain-of-Thought (CoT), ReAct, and Self-Consistency.
 
-A student has a budget of Rs. 30,000. The available courses are:
+The questions include simple calculations, multi-step reasoning, and a question requiring external information through a weather tool.
 
+---
 
+## 2. Direct Prompting
 
-\- CS101 – Rs. 12,000
+Direct prompting asks the model to provide an answer directly without displaying its reasoning or using an external tool.
 
-\- AI202 – Rs. 18,000
+For the workshop scenario, Direct Prompting was used to answer questions involving the budget and expenses.
 
-\- ML303 – Rs. 15,000
+### Observation
 
+The model provided direct answers to the questions without showing intermediate reasoning.
 
+### Advantages
 
-The task compares Direct Prompting, Chain-of-Thought (CoT), and ReAct approaches for answering questions about the scenario.
+- Simple to implement.
+- Fast.
+- Suitable for straightforward questions.
+- Does not require additional tools.
 
+### Limitation
 
+Direct prompting cannot independently retrieve new external information through a tool.
 
-\---
+---
 
+## 3. Chain-of-Thought
 
+Chain-of-Thought prompting asks the model to solve a problem step by step and show the important calculations.
 
-\## 2. Direct Prompting
+### Observation
 
+The model explained the calculations before giving the final answer.
 
+For example, the remaining budget can be calculated as:
 
-Direct prompting asks the model to answer the question immediately without showing its reasoning or using external tools.
+Total expenses = Rs. 8,000 + Rs. 7,500 + Rs. 3,500
 
+Total expenses = Rs. 19,000
 
+Remaining budget = Rs. 25,000 - Rs. 19,000
 
-\### Observation
+Remaining budget = Rs. 6,000
 
+### Advantages
 
+- Useful for multi-step reasoning.
+- Makes calculations easier to follow.
+- Helps organize the solution process.
 
-The model directly provided an answer based on the information included in the prompt.
+### Limitation
 
+CoT alone does not provide external information that requires a tool.
 
+---
 
-\### Advantages
+## 4. ReAct
 
+ReAct combines reasoning with actions and observations from external tools.
 
+The ReAct implementation used a weather tool to obtain current weather information for Chennai.
 
-\- Simple to implement.
+The process followed:
 
-\- Fast response.
+Thought → Action → Observation → Final Answer
 
-\- No external tool is required.
+### Observation
 
-\- Suitable for straightforward questions.
+For the weather question, the agent selected the weather tool:
 
+Action: get_current_weather
 
+Action Input: Chennai
 
-\### Limitation
+The tool returned:
 
+Current weather in Chennai: 29.7°C, humidity 59%.
 
+The agent then used this observation to provide the final answer.
 
-The model cannot obtain information that is not available in its prompt or existing knowledge.
+### Advantages
 
+- Can interact with external tools.
+- Can obtain information that is not directly provided in the question.
+- Combines reasoning with actions and observations.
 
+### Limitation
 
-\---
+It requires additional code for tool execution and error handling.
 
+---
 
+## 5. Self-Consistency
 
-\## 3. Chain-of-Thought
+Self-Consistency was tested using the workshop budget calculation.
 
+The Chain-of-Thought question was run multiple times with a non-zero temperature.
 
+The generated answers were recorded and compared to identify the majority answer.
 
-Chain-of-Thought prompting asks the model to solve the problem step by step.
+### Observation
 
+The repeated runs produced answers that could be compared for consistency.
 
+The majority answer was identified from the repeated results.
 
-\### Observation
+The same question was then run with temperature 0.
 
+At temperature 0, the response was more deterministic compared with the non-zero-temperature runs.
 
+### Purpose
 
-The model performed the calculations in a more structured way before providing the final answer.
+Self-Consistency provides multiple reasoning attempts and uses agreement between the results as an additional way of checking an answer.
 
+---
 
-
-\### Advantages
-
-
-
-\- Useful for multi-step reasoning.
-
-\- Makes intermediate calculations easier to follow.
-
-\- Can reduce mistakes in problems requiring several reasoning steps.
-
-
-
-\### Limitation
-
-
-
-CoT does not provide external information by itself. It still depends on the information available to the model.
-
-
-
-\---
-
-
-
-\## 4. ReAct
-
-
-
-ReAct combines reasoning with actions. The agent can decide when a tool is needed, execute the tool, observe its result, and then continue reasoning.
-
-
-
-\### Observation
-
-
-
-The ReAct implementation used the `course\_info` tool to retrieve course information before producing the final response.
-
-
-
-The process follows the general pattern:
-
-
-
-\*\*Thought → Action → Observation → Final Answer\*\*
-
-
-
-\### Advantages
-
-
-
-\- Can use external tools.
-
-\- Useful when information must be retrieved before answering.
-
-\- Combines reasoning and tool usage.
-
-
-
-\### Limitation
-
-
-
-It requires additional implementation and tool handling compared with direct prompting.
-
-
-
-\---
-
-
-
-\## 5. Comparison
-
-
+## 6. Comparison
 
 | Aspect | Direct Prompting | Chain-of-Thought | ReAct |
-
 |---|---|---|---|
-
-| Reasoning depth | Low | Higher | Higher |
-
+| Reasoning depth | Direct | Step-by-step | Reasoning + actions |
 | Tool usage | No | No | Yes |
-
-| Multi-step questions | Suitable for simple problems | Useful | Useful |
-
-| Transparency | Direct answer | Shows reasoning steps | Shows reasoning/action process |
-
-| Speed and cost | Generally lower | Higher than direct prompting | Higher because of tool calls |
-
+| Multi-step questions | Suitable for simple problems | Suitable | Suitable |
+| Transparency | Direct answer | Shows reasoning process | Shows action and observation process |
+| Speed/cost | Generally lower | Generally higher | Generally higher because of tool interaction |
 | Consistency | Usually high at low temperature | Can vary with temperature | Depends on reasoning and tool results |
 
+---
 
+## 7. Suitability
 
-\---
+### Direct Prompting
 
+Direct prompting is suitable for simple questions where the required information is already available in the prompt.
 
+### Chain-of-Thought
 
-\## 6. Self-Consistency
+Chain-of-Thought is suitable for questions requiring multiple reasoning or calculation steps.
 
+### ReAct
 
+ReAct is suitable when a task requires both reasoning and external information obtained through tools.
 
-Self-consistency was tested by running the Chain-of-Thought reasoning task multiple times with a non-zero temperature.
+### Self-Consistency
 
+Self-Consistency is suitable when repeated reasoning attempts can be compared to identify a consistent answer.
 
+---
 
-The answers from the repeated runs were compared to identify the majority answer.
+## 8. Conclusion
 
+The experiment demonstrates that different prompting approaches are useful for different types of tasks.
 
+Direct Prompting provides a simple and direct response. Chain-of-Thought provides a structured reasoning process for multi-step problems. ReAct extends reasoning by allowing interaction with an external tool. Self-Consistency compares multiple reasoning attempts to examine consistency.
 
-\### Observation
-
-
-
-Self-consistency can help identify an answer that appears repeatedly across independent reasoning attempts.
-
-
-
-At temperature 0, the model produces a more deterministic response, so repeated runs are expected to be more consistent.
-
-
-
-\### Purpose
-
-
-
-The experiment demonstrates that multiple reasoning attempts can be compared rather than relying on only one generated reasoning path.
-
-
-
-\---
-
-
-
-\## 7. Suitability
-
-
-
-\### Direct Prompting
-
-
-
-Suitable when the question is simple and the required information is already provided.
-
-
-
-\### Chain-of-Thought
-
-
-
-Suitable when the problem requires several reasoning or calculation steps.
-
-
-
-\### ReAct
-
-
-
-Suitable when the task requires both reasoning and information obtained through an external tool.
-
-
-
-\### Self-Consistency
-
-
-
-Suitable when multiple reasoning attempts can be used to check whether an answer is consistent.
-
-
-
-\---
-
-
-
-\## 8. Conclusion
-
-
-
-The experiment demonstrates that the three approaches have different purposes.
-
-
-
-Direct prompting is the simplest approach for straightforward questions. Chain-of-Thought provides a structured approach for multi-step reasoning. ReAct extends the process by allowing the model to interact with tools and use their observations.
-
-
-
-The suitable approach depends on the requirements of the task: simple questions can use direct prompting, reasoning-heavy questions can use CoT, and tasks requiring external information can use ReAct.
-
+The choice of approach depends on whether the task requires direct answering, multi-step reasoning, or external information.
