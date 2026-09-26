@@ -70,9 +70,9 @@ def agent(question, max_steps=6, verbose=True):
 if __name__ == "__main__":
     banner("MY AGENT (guards on)")
     for question in [
-        "Read Day_3/notice.html and tell me the total fee for CS101 and AI202 after the merit scholarship.",
-        "Read Day_3/fees.html and tell me the fee for CS101.",          # file does not exist
-        "Read Day_3/big.html and tell me how many students are listed.",
+        "Read notice.html and tell me the total fee for CS101 and AI202 after the merit scholarship.",
+        "Read fees.html and tell me the fee for CS101.",          # file does not exist
+        "Read big.html and tell me how many students are listed.",
     ]:
         print("\nQ:", question)
         print("A:", agent(question))

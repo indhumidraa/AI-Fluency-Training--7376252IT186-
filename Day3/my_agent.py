@@ -58,7 +58,7 @@ def agent(question, max_steps=6, verbose=True):
 
 if __name__ == "__main__":
     banner("MY AGENT (no guards)")
-    question = ("Read Day_3/notice.html and tell me the total fee for CS101 and AI202 "
+    question = ("Read notice.html and tell me the total fee for CS101 and AI202 "
                 "after the merit scholarship.")
     print("Q:", question)
     print("A:", agent(question))
