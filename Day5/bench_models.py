@@ -49,10 +49,8 @@ BASE = "https://api.groq.com/openai/v1"
 API_KEY = os.getenv("GROQ_API_KEY")
 # Using the model from .env, and a standard fast model for comparison
 MODELS = [
-    os.getenv("MODEL", "openai/gpt-oss-120b"),
-    os.getenv("MODEL2", "qwen/qwen3.8-27b"),
-    os.getenv("MODEL3", "meta-llama/llama-prompt-guard-2-86m"),
-    os.getenv("MODEL4", "canopylabs/orpheus-v1-english")
+"openai/gpt-oss-20b",
+"openai/gpt-oss-120b",
 ]
 
 if not API_KEY:
